@@ -93,7 +93,7 @@ class FSDB {
                 };
             });
         } catch {
-            return console.log("FS.DB Error: Failed to get data from database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#all()");
+            return console.log("File System DB Error: Failed to get data from database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#all()");
         }
     }
     /**
@@ -106,7 +106,7 @@ class FSDB {
     */
 
     get(key) {
-        if (!key) return console.log("FS.DB Error: Cannot get data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#get()");
+        if (!key) return console.log("File System DB Error: Cannot get data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#get()");
         let data = JSON.parse(fs.readFileSync(this.path));
         let keys = key.split(".");
         for (let i = 0; i < keys.length; i++) {
@@ -128,7 +128,7 @@ class FSDB {
      */
 
     startsWith(key) {
-        if (!key) return console.log("FS.DB Error: Cannot search for data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#startsWith()");
+        if (!key) return console.log("File System DB Error: Cannot search for data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#startsWith()");
         return this.all().filter(entry => entry.ID.startsWith(key));
     }
 
@@ -141,7 +141,7 @@ class FSDB {
      * // => true
      */
     has(key) {
-        if (!key) return console.log("FS.DB Error: Cannot get data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#has()");
+        if (!key) return console.log("File System DB Error: Cannot get data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#has()");
         let data = this.get(key);
         return data !== null;
     }
@@ -160,15 +160,15 @@ class FSDB {
      */
     set(key, value) {
         if (!key) {
-            console.log("FS.DB Error: Cannot save data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#set()");
+            console.log("File System DB Error: Cannot save data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#set()");
             return false;
         }
         if (typeof key !== "string") {
-            console.log("FS.DB Error: Cannot save data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#set()");
+            console.log("File System DB Error: Cannot save data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#set()");
             return false;
         }
         if (value === undefined || value === null || value === "") {
-            console.log("FS.DB Error: Cannot save data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#set()");
+            console.log("File System DB Error: Cannot save data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#set()");
             return false;
         }
         let data = JSON.parse(fs.readFileSync(this.path));
@@ -192,15 +192,15 @@ class FSDB {
 
     push(key, value) {
         if (!key) {
-            console.log("FS.DB Error: Cannot push data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#push()");
+            console.log("File System DB Error: Cannot push data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#push()");
             return false;
         }
         if (typeof key !== "string") {
-            console.log("FS.DB Error: Cannot push data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#push()");
+            console.log("File System DB Error: Cannot push data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#push()");
             return false;
         }
         if (value === undefined || value === null || value === "") {
-            console.log("FS.DB Error: Cannot push data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#push()");
+            console.log("File System DB Error: Cannot push data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#push()");
             return false;
         }
         try {
@@ -210,14 +210,14 @@ class FSDB {
                 return this.set(key, value);
             }
             if (!Array.isArray(data)) {
-                console.log("FS.DB Error: Cannot push data, as the key does not point to an array.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#push()");
+                console.log("File System DB Error: Cannot push data, as the key does not point to an array.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#push()");
                 return false;
             }
             if (Array.isArray(value)) return this.set(key, data.concat(value));
             data.push(value);
             return this.set(key, data);
         } catch {
-            console.log("FS.DB Error: Failed to push data to an array in the database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#push()");
+            console.log("File System DB Error: Failed to push data to an array in the database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#push()");
             return false;
         }
     }
@@ -234,15 +234,15 @@ class FSDB {
 
     pull(key, value) {
         if (!key) {
-            console.log("FS.DB Error: Cannot pull data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#pull()");
+            console.log("File System DB Error: Cannot pull data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#pull()");
             return false;
         }
         if (typeof key !== "string") {
-            console.log("FS.DB Error: Cannot pull data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#pull()");
+            console.log("File System DB Error: Cannot pull data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#pull()");
             return false;
         }
         if (value === undefined || value === null || value === "") {
-            console.log("FS.DB Error: Cannot pull data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#pull()");
+            console.log("File System DB Error: Cannot pull data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#pull()");
             return false;
         }
         try {
@@ -252,13 +252,13 @@ class FSDB {
                 return this.set(key, value);
             }
             if (!Array.isArray(data)) {
-                console.log("FS.DB Error: Cannot pull data, as the key does not point to an array.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#pull()");
+                console.log("File System DB Error: Cannot pull data, as the key does not point to an array.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#pull()");
                 return false;
             }
             if (Array.isArray(value)) return this.set(key, data.filter(entry => !value.includes(entry)));
             return this.set(key, data.filter(entry => entry !== value));
         } catch {
-            console.log("FS.DB Error: Failed to pull data from an array in the database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#pull()");
+            console.log("File System DB Error: Failed to pull data from an array in the database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#pull()");
             return false;
         }
     }
@@ -276,31 +276,31 @@ class FSDB {
 
     add(key, value) {
         if (!key) {
-            console.log("FS.DB Error: Cannot add data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#add()");
+            console.log("File System DB Error: Cannot add data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#add()");
             return false;
         }
         if (typeof key !== "string") {
-            console.log("FS.DB Error: Cannot add data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#add()");
+            console.log("File System DB Error: Cannot add data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#add()");
             return false;
         }
         if (value === undefined || value === null || value === "") {
-            console.log("FS.DB Error: Cannot add data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#add()");
+            console.log("File System DB Error: Cannot add data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#add()");
             return false;
         }
         if (isNaN(value)) {
-            console.log("FS.DB Error: Cannot add data, as the value is not a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#add()");
+            console.log("File System DB Error: Cannot add data, as the value is not a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#add()");
             return false;
         }
         try {
             let data = this.get(key);
             if (data == null) return this.set(key, value);
             if (isNaN(data)) {
-                console.log("FS.DB Error: Cannot add data, as the key does not point to a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#add()");
+                console.log("File System DB Error: Cannot add data, as the key does not point to a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#add()");
                 return false;
             }
             return this.set(key, data + value);
         } catch {
-            console.log("FS.DB Error: Failed to add to a number in the database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#add()");
+            console.log("File System DB Error: Failed to add to a number in the database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#add()");
             return false;
         }
     }
@@ -318,32 +318,32 @@ class FSDB {
 
     subtract(key, value) {
         if (!key) {
-            console.log("FS.DB Error: Cannot subtract data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#subtract()");
+            console.log("File System DB Error: Cannot subtract data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#subtract()");
             return false;
         }
         if (typeof key !== "string") {
-            console.log("FS.DB Error: Cannot subtract data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#subtract()");
+            console.log("File System DB Error: Cannot subtract data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#subtract()");
             return false;
         }
         if (value === undefined || value === null || value === "") {
-            console.log("FS.DB Error: Cannot subtract data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#subtract()");
+            console.log("File System DB Error: Cannot subtract data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#subtract()");
             return false;
         }
         if (isNaN(value)) {
-            console.log("FS.DB Error: Cannot subtract data, as the value is not a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#subtract()");
+            console.log("File System DB Error: Cannot subtract data, as the value is not a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#subtract()");
             return false;
         }
         try {
             let data = this.get(key);
             if (data == null) return this.set(key, value);
             if (isNaN(data)) {
-                console.log("FS.DB Error: Cannot subtract data, as the key does not point to a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#subtract()");
+                console.log("File System DB Error: Cannot subtract data, as the key does not point to a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#subtract()");
                 return false;
             }
             return this.set(key, data - value);
         }
         catch {
-            console.log("FS.DB Error: Failed to subtract from a number in the database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#subtract()");
+            console.log("File System DB Error: Failed to subtract from a number in the database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#subtract()");
             return false;
         }
     }
@@ -361,31 +361,31 @@ class FSDB {
 
     multiply(key, value) {
         if (!key) {
-            console.log("FS.DB Error: Cannot multiply data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#multiply()");
+            console.log("File System DB Error: Cannot multiply data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#multiply()");
             return false;
         }
         if (typeof key !== "string") {
-            console.log("FS.DB Error: Cannot multiply data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#multiply()");
+            console.log("File System DB Error: Cannot multiply data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#multiply()");
             return false;
         }
         if (value === undefined || value === null || value === "") {
-            console.log("FS.DB Error: Cannot multiply data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#multiply()");
+            console.log("File System DB Error: Cannot multiply data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#multiply()");
             return false;
         }
         if (isNaN(value)) {
-            console.log("FS.DB Error: Cannot multiply data, as the value is not a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#multiply()");
+            console.log("File System DB Error: Cannot multiply data, as the value is not a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#multiply()");
             return false;
         }
         try {
             let data = this.get(key);
             if (data == null) return this.set(key, value);
             if (isNaN(data)) {
-                console.log("FS.DB Error: Cannot multiply data, as the key does not point to a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#multiply()");
+                console.log("File System DB Error: Cannot multiply data, as the key does not point to a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#multiply()");
                 return false;
             }
             return this.set(key, data * value);
         } catch {
-            console.log("FS.DB Error: Failed to multiply a number in the database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#multiply()");
+            console.log("File System DB Error: Failed to multiply a number in the database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#multiply()");
             return false;
         }
     }
@@ -403,35 +403,35 @@ class FSDB {
 
     divide(key, value) {
         if (!key) {
-            console.log("FS.DB Error: Cannot divide data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()");
+            console.log("File System DB Error: Cannot divide data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()");
             return false;
         }
         if (typeof key !== "string") {
-            console.log("FS.DB Error: Cannot divide data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()");
+            console.log("File System DB Error: Cannot divide data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()");
             return false;
         }
         if (value === undefined || value === null || value === "") {
-            console.log("FS.DB Error: Cannot divide data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()");
+            console.log("File System DB Error: Cannot divide data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()");
             return false;
         }
         if (isNaN(value)) {
-            console.log("FS.DB Error: Cannot divide data, as the value is not a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()");
+            console.log("File System DB Error: Cannot divide data, as the value is not a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()");
             return false;
         }
         if (value == 0) {
-            console.log("FS.DB Error: Cannot divide data, as it looks like you're trying to end the world. (Dividing by 0)\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()");
+            console.log("File System DB Error: Cannot divide data, as it looks like you're trying to end the world. (Dividing by 0)\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()");
             return false;
         }
         try {
             let data = this.get(key);
             if (data == null) return this.set(key, value);
             if (isNaN(data)) {
-                console.log("FS.DB Error: Cannot divide data, as the key does not point to a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()");
+                console.log("File System DB Error: Cannot divide data, as the key does not point to a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()");
                 return false;
             }
             return this.set(key, data / value);
         } catch {
-            console.log("FS.DB Error: Failed to divide a number in the database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()");
+            console.log("File System DB Error: Failed to divide a number in the database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()");
             return false;
         }
     }
@@ -447,11 +447,11 @@ class FSDB {
      */
     delete(key) {
         if (!key) {
-            console.log("FS.DB Error: Cannot delete data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#delete()");
+            console.log("File System DB Error: Cannot delete data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#delete()");
             return false;
         }
         if (typeof key !== "string") {
-            console.log("FS.DB Error: Cannot delete data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#delete()");
+            console.log("File System DB Error: Cannot delete data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#delete()");
             return false;
         }
         try {
@@ -460,7 +460,7 @@ class FSDB {
             this.compact ? fs.writeFileSync(this.path, JSON.stringify(parsed)) : fs.writeFileSync(this.path, JSON.stringify(parsed, null, 4));
             return true;
         } catch {
-            console.log("FS.DB Error: Failed to delete data from database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#delete()");
+            console.log("File System DB Error: Failed to delete data from database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#delete()");
             return false;
         }
     }
@@ -477,7 +477,7 @@ class FSDB {
             fs.writeFileSync(this.path, "{}");
             return true;
         } catch {
-            console.log("FS.DB Error: Failed to delete data from database. This may be because the JSON file could not be accessed.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#deleteAll()");
+            console.log("File System DB Error: Failed to delete data from database. This may be because the JSON file could not be accessed.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#deleteAll()");
             return false;
         }
     }
@@ -492,15 +492,15 @@ class FSDB {
 
     backup(path) {
         if (!path) {
-            console.log("FS.DB Error: Cannot backup data, as no path was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#backup()");
+            console.log("File System DB Error: Cannot backup data, as no path was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#backup()");
             return false;
         }
         if (path == this.path) {
-            console.log("FS.DB Error: Cannot backup data, as the path is the same as the database's path.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#backup()");
+            console.log("File System DB Error: Cannot backup data, as the path is the same as the database's path.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#backup()");
             return false;
         }
         try {
-            if (this.all().length == 0) console.log("FS.DB Warning: Attempting to backup an empty database.\nMethod: FSDB#backup()");
+            if (this.all().length == 0) console.log("File System DB Warning: Attempting to backup an empty database.\nMethod: FSDB#backup()");
             path = path.replace(/\\/g, "/");
             let parsedPath = require("path").parse(path);
             if (parsedPath.ext !== ".json") path = path + ".json";
@@ -508,7 +508,7 @@ class FSDB {
             fs.writeFileSync(path, JSON.stringify(JSON.parse(fs.readFileSync(this.path))));
             return true;
         } catch {
-            console.log("FS.DB Error: Failed to backup data. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#backup()");
+            console.log("File System DB Error: Failed to backup data. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#backup()");
             return false;
         }
     }

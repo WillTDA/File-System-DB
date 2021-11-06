@@ -2,7 +2,7 @@
 💿 File System DB 💿
 </h1>
 
-A Lightweight, Synchronous, Key-Value Based JSON File Database System.
+File System DB (or "FSDB" for short) is a Lightweight, Synchronous, Key-Value Based JSON File Database System.
 
 **Please Note:** This package saves data persistently. This means that this will not work on places like Heroku and similar services.
 
@@ -25,9 +25,9 @@ A Lightweight, Synchronous, Key-Value Based JSON File Database System.
 
 ## Install Package
 
-FS.DB's size footprint is tiny, making the installation process really quick and easy.
+File System DB's size footprint is tiny, making the installation process really quick and easy.
 
-`npm install fs.db --save`
+`npm install file-system-db --save`
 
 ## Setup and Usage
 
@@ -35,9 +35,9 @@ To set up your database, you only need to write two lines of code.
 
 First of all, let's import the package.
 ```js
-const FSDB = require("fs.db");
+const FSDB = require("file-system-db");
 ```
-Now for the fun part, let's create a database. Creating one only takes a single line of code, and the best part is you can make as many as you want! You don't need to worry about making sure the JSON file and directory path exists, as FS.DB can handle that for you.
+Now for the fun part, let's create a database. Creating one only takes a single line of code, and the best part is you can make as many as you want! You don't need to worry about making sure the JSON file and directory path exists, as File System DB can handle that for you.
 
 It's as simple as creating a variable and assigning it to a new FSDB instance.
 

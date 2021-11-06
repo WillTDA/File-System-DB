@@ -1,5 +1,5 @@
 {
-  "name": "fs.db",
+  "name": "file-system-db",
   "version": "1.0.0",
   "description": "A Lightweight, Synchronous, Key-Value Based JSON File Database System.",
   "main": "index.js",
