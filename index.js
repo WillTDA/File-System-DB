@@ -204,8 +204,8 @@ class FSDB {
             return false;
         }
         try {
-            let data = this.get(key);
-            if (data == null) {
+            let data = this.get(key) || [];
+            if (data == []) {
                 if (!Array.isArray(value)) return this.set(key, [value]);
                 return this.set(key, value);
             }
@@ -246,8 +246,8 @@ class FSDB {
             return false;
         }
         try {
-            let data = this.get(key);
-            if (data == null) {
+            let data = this.get(key) || [];
+            if (data == []) {
                 if (!Array.isArray(value)) return this.set(key, []);
                 return this.set(key, value);
             }
