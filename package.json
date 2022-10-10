@@ -1,6 +1,6 @@
 {
   "name": "file-system-db",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A Lightweight, Synchronous, Key-Value Based JSON File Database System.",
   "main": "index.js",
   "scripts": {
