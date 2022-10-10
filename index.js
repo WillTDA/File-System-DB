@@ -77,21 +77,34 @@ class FSDB {
 
     /**
      * Fetch All Data from the Database.
+     * @param {boolean} verbose Whether or not to escape dot notation and class those as individual entries. (Defaults to `false`)
      * @returns {DataSet[]} All Data in the Database.
      * @example
-     * db.all();
+     * db.all(false); // with "verbose" disabled
+     * // => [{ ID: "key", data: "value" }, { ID: "foo", data: { "bar": "value" } }]
+     * 
+     * db.all(true); //with "verbose" enabled
      * // => [{ ID: "key", data: "value" }, { ID: "foo.bar", data: "value" }]
      */
-    all() {
+    all(verbose) {
         try {
             let data = JSON.parse(fs.readFileSync(this.path));
-            let parsed = convertToDotNotation(data);
-            return Object.keys(parsed).map((key) => {
-                return {
-                    ID: key,
-                    data: parsed[key]
-                };
-            });
+            if (verbose) {
+                let parsed = convertToDotNotation(data);
+                return Object.keys(parsed).map((key) => {
+                    return {
+                        ID: key,
+                        data: parsed[key]
+                    };
+                });
+            } else {
+                return Object.keys(data).map(key => {
+                    return {
+                        ID: key,
+                        data: data[key]
+                    }
+                });
+            }
         } catch {
             return console.log("File System DB Error: Failed to get data from database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#all()");
         }
@@ -129,7 +142,7 @@ class FSDB {
 
     startsWith(key) {
         if (!key) return console.log("File System DB Error: Cannot search for data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#startsWith()");
-        return this.all().filter(entry => entry.ID.startsWith(key));
+        return this.all(true).filter(entry => entry.ID.startsWith(key));
     }
 
     /**
@@ -500,7 +513,7 @@ class FSDB {
             return false;
         }
         try {
-            if (this.all().length == 0) console.log("File System DB Warning: Attempting to backup an empty database.\nMethod: FSDB#backup()");
+            if (this.all(true).length == 0) console.log("File System DB Warning: Attempting to backup an empty database.\nMethod: FSDB#backup()");
             path = path.replace(/\\/g, "/");
             let parsedPath = require("path").parse(path);
             if (parsedPath.ext !== ".json") path = path + ".json";
