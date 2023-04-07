@@ -22,7 +22,6 @@ File System DB (or "FSDB" for short) is a Lightweight, Synchronous, Key-Value Ba
 
 - 🚫 <b>No Dependencies</b> | This package is built on top of the [File System](https://nodejs.org/api/fs.html) module built into Node.js, making the package size very small.
 
-
 ## Install Package
 
 File System DB's size footprint is tiny, making the installation process really quick and easy.
@@ -34,9 +33,11 @@ File System DB's size footprint is tiny, making the installation process really 
 To set up your database, you only need to write two lines of code.
 
 First of all, let's import the package.
+
 ```js
 const FSDB = require("file-system-db");
 ```
+
 Now for the fun part, let's create a database. Creating one only takes a single line of code, and the best part is you can make as many as you want! You don't need to worry about making sure the JSON file and directory path exists, as File System DB can handle that for you.
 
 It's as simple as creating a variable and assigning it to a new FSDB instance.
@@ -52,8 +53,9 @@ There are also two optional parameters that can be passed to the constructor. Th
 - `compact` - This determines whether the database should be compacted after every save. This won't look easily readable to humans, but it will save you unnecessary storage space. (Defaults to `true`)
 
 Example:
+
 ```js
-const db = new FSDB("./db.json", false); 
+const db = new FSDB("./db.json", false);
 // Creates a database at `./db.json` and doesn't compact it, making it easier for humans to read.
 ```
 
@@ -73,6 +75,7 @@ db.set("player", "WillTDA");
 db.get("player");
 // => "WillTDA"
 ```
+
 You can also use dot notation to store and retrieve JSON data.
 
 ```js

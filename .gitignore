@@ -1,0 +1,13 @@
+# learn more: https://git-scm.com/docs/gitignore
+
+# dependencies
+node_modules
+
+# miscellaneous
+.DS_Store
+*.log
+*.lock
+*.cache
+
+# temporary
+CHANGES.md
