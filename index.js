@@ -1,130 +1,118 @@
+/// <reference path="index.d.ts" />
+
 const { existsSync, mkdirSync, readFileSync, writeFileSync } = require("fs");
 const { parse } = require("path");
 
-const mkdirs = (dirs) => {
-    const paths = dirs.split("/");
-    let current = "";
+/**
+ * @param {string} key
+ * @param {*} value
+ * @param {Record<string, any>} object
+ */
+const parseKey = (key, value, object) => {
+    const [currentKey, path] = key.split(".", 2);
 
-    paths.forEach((p) => {
-        current += `${p}/`;
-        if (!existsSync(current)) {
-            mkdirSync(current);
-        }
-    });
-};
-
-const parseKey = (key, value, obj) => {
-    const [path, ...rest] = key.split(".");
-
-    if (rest.length === 0) {
+    if (!path) {
         // if the value is null, delete the key
-        if (value === null) delete obj[path];
-        else obj[path] = value;
+        if (value === null) delete object[currentKey];
+        else object[currentKey] = value;
     } else {
-        if (!obj[path]) {
-            obj[path] = {};
-        }
-        parseKey(rest.join("."), value, obj[path]);
+        if (!object[currentKey]) object[currentKey] = {};
+        parseKey(path, value, object[currentKey]);
     }
 
-    return obj;
+    return object;
 };
 
-const convertToDotNotation = (obj) => {
-    const keys = Object.keys(obj);
+/** @param {Record<string, any>} object */
+const convertToDotNotation = (object) => {
+    /** @type {Record<string, any>} */
     const result = {};
 
-    keys.forEach((key) => {
-        const value = obj[key];
-
-        if (typeof value === "object") {
-            const subKeys = convertToDotNotation(value);
-            Object.keys(subKeys).forEach((subKey) => {
-                result[`${key}.${subKey}`] = subKeys[subKey];
-            });
+    Object.entries(object).forEach(([currentKey, currentValue]) => {
+        if (
+            typeof currentValue === "object" ||
+            !Array.isArray(currentValue) ||
+            currentValue !== null
+        ) {
+            Object.entries(convertToDotNotation(currentValue)).forEach(
+                ([key, value]) => result[`${currentKey}.${key}`] = value
+            );
         } else {
-            result[key] = value;
+            result[currentKey] = currentValue;
         }
     });
 
     return result;
 };
 
-class DataSet {
+class FSDBError extends Error {
     /**
-     * The key of the data fetched
-     * @param {string}
+     * Create a new FSDBError
+     * @param {object} options The options for the error
+     * @param {string} options.message The error message
+     * @param {`FSDB#${string}()`} options.method The method that threw the error
+     * @param {unknown=} options.cause The cause of the error
      */
-    ID = this.ID;
-
-    /**
-     * The data fetched
-     * @param {string}
-     */
-    data = this.data;
+    constructor({ message, method, cause }) {
+        super(message);
+        this.name = "FSDBError";
+        this.message = `${message}\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: ${method}`;
+        this.method = method;
+        this.cause = cause;
+    }
 }
 
 class FSDB {
     /**
      * Create a new FSDB database
-     * @param {string} path You can specify a path to a file location where your
+     * @param {string} [path="database.json"] You can specify a path to a file location where your
      * database should be located (defaults to `database.json`)
-     * @param {boolean} compact Whether or not to store the database contents in
+     * @param {boolean} [compact=true] Whether or not to store the database contents in
      * a compact format. It won't be easily readable to humans, but it will save
      * storage space (defaults to `true`)
      * @example <caption>Creating a human-readable database</caption>
      * const db = new FSDB("./db.json", false);
      */
-    constructor(path, compact) {
-        if (!path) path = "database.json";
+    constructor(path = "database.json", compact = true) {
         path = path.replace(/\\/g, "/");
-        let parsedPath = parse(path);
+        const { dir, ext } = parse(path);
 
-        if (parsedPath.ext !== ".json") path = path + ".json";
-        if (parsedPath.dir) mkdirs(parsedPath.dir);
-        if (!existsSync(path)) writeFileSync(path, "{}");
+        if (ext !== ".json") path = `${path}.json`;
+        if (dir) mkdirSync(dir, { recursive: true });
+        if (!existsSync(path)) writeFileSync(path, "{}", "utf8");
 
         this.path = path;
-        this.compact = compact === undefined ? true : compact;
+        this.compact = compact;
     }
 
     /**
      * Fetch all data from the database
-     * @param {boolean} verbose Whether or not to escape dot notation and class
+     * @param {boolean=} verbose Whether or not to escape dot notation and class
      * those as individual entries (defaults to `false`)
-     * @returns {DataSet[]} All data in the database
+     * @returns {DatabaseEntry[]} All data in the database
+     * @throws {FSDBError} If the database could not be parsed
      * @example <caption>With `verbose` disabled</caption>
      * db.all(false);
-     * // => [{ ID: "key", data: "value" }, { ID: "foo", data: { "bar": "value" } }]
+     * // => [{ key: "key", value: "value" }, { key: "foo", value: { "bar": "value" } }]
      * @example <caption>With `verbose` enabled</caption>
      * db.all(true);
-     * // => [{ ID: "key", data: "value" }, { ID: "foo.bar", data: "value" }]
+     * // => [{ key: "key", value: "value" }, { key: "foo.bar", value: "value" }]
      */
     all(verbose) {
         try {
-            let data = JSON.parse(readFileSync(this.path));
-
-            if (verbose) {
-                let parsed = convertToDotNotation(data);
-
-                return Object.keys(parsed).map((key) => {
-                    return {
-                        ID: key,
-                        data: parsed[key],
-                    };
-                });
-            } else {
-                return Object.keys(data).map((key) => {
-                    return {
-                        ID: key,
-                        data: data[key],
-                    };
-                });
-            }
-        } catch {
-            return console.log(
-                "File System DB Error: Failed to get data from database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#all()"
-            );
+            const data = JSON.parse(readFileSync(this.path, "utf8"));
+            const parsedData = verbose ? convertToDotNotation(data) : data;
+            return Object.entries(parsedData).map(([key, value]) => ({
+                key,
+                value,
+            }));
+        } catch (error) {
+            throw new FSDBError({
+                message:
+                    "Failed to get data from database. This may be because the JSON could not be parsed correctly.",
+                method: "FSDB#all()",
+                cause: error,
+            });
         }
     }
 
@@ -132,26 +120,25 @@ class FSDB {
      * Retrieve a value from the database
      * @param {string} key The key of the data you want to retrieve
      * @returns {any} The data found (`null` if not found)
+     * @throws {FSDBError} If no key was provided
      * @example <caption>Retrieving a value</caption>
      * db.get("key");
      * // => "value"
      */
     get(key) {
-        if (!key)
-            return console.log(
-                "File System DB Error: Cannot get data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#get()"
-            );
-
-        let data = JSON.parse(readFileSync(this.path));
-        let keys = key.split(".");
-
-        for (let i = 0; i < keys.length; i++) {
-            if (data[keys[i]] === undefined || data[keys[i]] === null)
-                return null;
-            data = data[keys[i]];
+        if (!key) {
+            throw new FSDBError({
+                message: "Cannot get data, as no key was provided.",
+                method: "FSDB#get()",
+            });
         }
 
-        return data;
+        return key
+            .split(".")
+            .reduce(
+                (obj, key) => (obj && obj[key] ? obj[key] : null),
+                JSON.parse(readFileSync(this.path, "utf8"))
+            );
     }
 
     // get all items starting with a certain sequence of characters in the key
@@ -160,35 +147,41 @@ class FSDB {
     /**
      * Retrieve a list of entries starting with a specific key
      * @param {string} key The key to search for
-     * @returns {DataSet[]} The list of entries
+     * @returns {DatabaseEntry[]} The list of entries
+     * @throws {FSDBError} If no key was provided
      * @example <caption>Retrieve entries starting with `"key"`</caption>
      * db.startsWith("key");
-     * // => [{ ID: "key.foo", data: "value" }, { ID: "key.bar", data: "value" }]
+     * // => [{ key: "key.foo", value: "value" }, { key: "key.bar", value: "value" }]
      */
     startsWith(key) {
-        if (!key)
-            return console.log(
-                "File System DB Error: Cannot search for data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#startsWith()"
-            );
-        return this.all(true).filter((entry) => entry.ID.startsWith(key));
+        if (!key) {
+            throw new FSDBError({
+                message: "Cannot search for data, as no key was provided.",
+                method: "FSDB#startsWith()",
+            });
+        }
+
+        return this.all(true).filter((entry) => entry.key.startsWith(key));
     }
 
     /**
      * Check if a key exists in the database
      * @param {string} key The key to check
      * @returns {boolean} Whether the key exists
+     * @throws {FSDBError} If no key was provided
      * @example <caption>Check if `"key"` exists</caption>
      * db.has("key");
      * // => true
      */
     has(key) {
-        if (!key)
-            return console.log(
-                "File System DB Error: Cannot get data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#has()"
-            );
+        if (!key) {
+            throw new FSDBError({
+                message: "Cannot get data, as no key was provided.",
+                method: "FSDB#has()",
+            });
+        }
 
-        let data = this.get(key);
-        return data !== null;
+        return this.get(key) !== null;
     }
 
     /**
@@ -204,158 +197,151 @@ class FSDB {
      * // => { foo: { bar: "value" } }
      */
     set(key, value) {
-        if (!key) {
-            console.log(
-                "File System DB Error: Cannot save data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#set()"
-            );
+        try {
+            if (!key) {
+                throw new FSDBError({
+                    message: "Cannot save data, as no key was provided.",
+                    method: "FSDB#set()",
+                });
+            }
+
+            if (value === undefined || value === null || value === "") {
+                throw new FSDBError({
+                    message: "Cannot save data, as none was provided.",
+                    method: "FSDB#set()",
+                });
+            }
+
+            const data = JSON.parse(readFileSync(this.path, "utf8"));
+            const parsed = parseKey(key, value, data);
+            const spacing = this.compact ? undefined : 4;
+            const newData = JSON.stringify(parsed, null, spacing);
+
+            writeFileSync(this.path, newData, "utf8");
+            return true;
+        } catch (error) {
+            if (!(error instanceof FSDBError)) throw error;
+
+            console.error(error.message);
             return false;
         }
-
-        if (typeof key !== "string") {
-            console.log(
-                "File System DB Error: Cannot save data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#set()"
-            );
-            return false;
-        }
-
-        if (value === undefined || value === null || value === "") {
-            console.log(
-                "File System DB Error: Cannot save data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#set()"
-            );
-            return false;
-        }
-
-        let data = JSON.parse(readFileSync(this.path));
-        let parsed = parseKey(key, value, data);
-
-        this.compact
-            ? writeFileSync(this.path, JSON.stringify(parsed))
-            : writeFileSync(this.path, JSON.stringify(parsed, null, 4));
-        return true;
     }
 
     /**
      * Push value(s) to an array in the database
      * @param {string} key The key of the array you want to push to
-     * @param {any|any[]} value The value(s) you want to push
+     * @param {any[]} items The value(s) you want to push
      * @returns {boolean} Whether the push was successful or not
+     * @throws {FSDBError} When a parsing error occurs or something else goes wrong
      * @example <caption>Pushing a value</caption>
      * db.push("key", "value");
      * // => { key: ["value"] }
      * @example <caption>Pushing multiple values</caption>
-     * db.push("key", ["foo", "bar"]);
+     * db.push("key", "foo", "bar");
      * // => { key: ["value", "foo", "bar"] }
      */
-    push(key, value) {
-        if (!key) {
-            console.log(
-                "File System DB Error: Cannot push data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#push()"
-            );
-            return false;
-        }
-
-        if (typeof key !== "string") {
-            console.log(
-                "File System DB Error: Cannot push data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#push()"
-            );
-            return false;
-        }
-
-        if (value === undefined || value === null || value === "") {
-            console.log(
-                "File System DB Error: Cannot push data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#push()"
-            );
-            return false;
-        }
-
+    push(key, ...items) {
         try {
-            let data = this.get(key) || [];
-
-            if (data == []) {
-                if (!Array.isArray(value)) return this.set(key, [value]);
-                return this.set(key, value);
+            if (!key) {
+                throw new FSDBError({
+                    message: "Cannot push data, as no key was provided.",
+                    method: "FSDB#push()",
+                });
             }
 
+            items = items.filter(
+                (item) => item !== undefined && item !== null && item !== ""
+            );
+
+            if (items.length === 0) {
+                throw new FSDBError({
+                    message: "Cannot push data, as none was provided.",
+                    method: "FSDB#push()",
+                });
+            }
+
+            const data = this.get(key) ?? [];
+
             if (!Array.isArray(data)) {
-                console.log(
-                    "File System DB Error: Cannot push data, as the key does not point to an array.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#push()"
-                );
+                throw new FSDBError({
+                    message:
+                        "Cannot push data, as the key does not point to an array.",
+                    method: "FSDB#push()",
+                });
+            }
+
+            return this.set(key, data.concat(items));
+        } catch (error) {
+            if (error instanceof FSDBError) {
+                console.error(error.message);
                 return false;
             }
 
-            if (Array.isArray(value)) return this.set(key, data.concat(value));
-            data.push(value);
-
-            return this.set(key, data);
-        } catch {
-            console.log(
-                "File System DB Error: Failed to push data to an array in the database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#push()"
-            );
-            return false;
+            throw new FSDBError({
+                message:
+                    "Failed to push data to an array in the database. This may be because the JSON could not be parsed correctly.",
+                method: "FSDB#push()",
+                cause: error,
+            });
         }
     }
 
     /**
      * Remove value(s) from an array in the database
      * @param {string} key The key of the array you want to remove from
-     * @param {any|any[]} value The value(s) you want to remove
+     * @param {any[]} items The value(s) you want to remove
      * @returns {boolean} Whether the pull was successful or not
+     * @throws {FSDBError} When a parsing error occurs or something else goes wrong
      * @example <caption>Removing a value</caption>
      * db.pull("key", "value");
      * // => { key: [] }
      */
-    pull(key, value) {
-        if (!key) {
-            console.log(
-                "File System DB Error: Cannot pull data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#pull()"
-            );
-            return false;
-        }
-
-        if (typeof key !== "string") {
-            console.log(
-                "File System DB Error: Cannot pull data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#pull()"
-            );
-            return false;
-        }
-
-        if (value === undefined || value === null || value === "") {
-            console.log(
-                "File System DB Error: Cannot pull data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#pull()"
-            );
-            return false;
-        }
-
+    pull(key, ...items) {
         try {
-            let data = this.get(key) || [];
-
-            if (data == []) {
-                if (!Array.isArray(value)) return this.set(key, []);
-                return this.set(key, value);
+            if (!key) {
+                throw new FSDBError({
+                    message: "Cannot pull data, as no key was provided.",
+                    method: "FSDB#pull()",
+                });
             }
+
+            items = items.filter(
+                (item) => item !== undefined && item !== null && item !== ""
+            );
+
+            if (items.length === 0) {
+                throw new FSDBError({
+                    message: "Cannot pull data, as none was provided.",
+                    method: "FSDB#pull()",
+                });
+            }
+
+            const data = this.get(key) ?? [];
 
             if (!Array.isArray(data)) {
-                console.log(
-                    "File System DB Error: Cannot pull data, as the key does not point to an array.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#pull()"
-                );
-                return false;
+                throw new FSDBError({
+                    message:
+                        "Cannot pull data, as the key does not point to an array.",
+                    method: "FSDB#pull()",
+                });
             }
-
-            if (Array.isArray(value))
-                return this.set(
-                    key,
-                    data.filter((entry) => !value.includes(entry))
-                );
 
             return this.set(
                 key,
-                data.filter((entry) => entry !== value)
+                data.filter((entry) => !items.includes(entry))
             );
-        } catch {
-            console.log(
-                "File System DB Error: Failed to pull data from an array in the database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#pull()"
-            );
-            return false;
+        } catch (error) {
+            if (error instanceof FSDBError) {
+                console.error(error.message);
+                return false;
+            }
+
+            throw new FSDBError({
+                message:
+                    "Failed to pull data from an array in the database. This may be because the JSON could not be parsed correctly.",
+                method: "FSDB#pull()",
+                cause: error,
+            });
         }
     }
 
@@ -364,56 +350,52 @@ class FSDB {
      * @param {string} key The key of the number you want to add to
      * @param {number} value The value you want to add
      * @returns {boolean} Whether the addition was successful or not
+     * @throws {FSDBError} When a parsing error occurs or something else goes wrong
      * @example <caption>Adding to a number</caption>
      * // assuming the database contains: { key: 500 }
      * db.add("key", 250);
      * // => { key: 750 }
      */
     add(key, value) {
-        if (!key) {
-            console.log(
-                "File System DB Error: Cannot add data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#add()"
-            );
-            return false;
-        }
-
-        if (typeof key !== "string") {
-            console.log(
-                "File System DB Error: Cannot add data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#add()"
-            );
-            return false;
-        }
-
-        if (value === undefined || value === null || value === "") {
-            console.log(
-                "File System DB Error: Cannot add data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#add()"
-            );
-            return false;
-        }
-
-        if (isNaN(value)) {
-            console.log(
-                "File System DB Error: Cannot add data, as the value is not a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#add()"
-            );
-            return false;
-        }
-
         try {
-            let data = this.get(key);
+            if (!key) {
+                throw new FSDBError({
+                    message: "Cannot add data, as no key was provided.",
+                    method: "FSDB#add()",
+                });
+            }
 
-            if (data == null) return this.set(key, value);
-            if (isNaN(data)) {
-                console.log(
-                    "File System DB Error: Cannot add data, as the key does not point to a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#add()"
-                );
+            if (isNaN(value)) {
+                throw new FSDBError({
+                    message: "Cannot add data, as the value is not a number.",
+                    method: "FSDB#add()",
+                });
+            }
+
+            const data = this.get(key);
+
+            if (data === null) return this.set(key, value);
+            if (typeof data !== "number" || isNaN(data)) {
+                throw new FSDBError({
+                    message:
+                        "Cannot add data, as the key does not point to a number.",
+                    method: "FSDB#add()",
+                });
+            }
+
+            return this.set(key, data + value);
+        } catch (error) {
+            if (error instanceof FSDBError) {
+                console.error(error.message);
                 return false;
             }
-            return this.set(key, data + value);
-        } catch {
-            console.log(
-                "File System DB Error: Failed to add to a number in the database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#add()"
-            );
-            return false;
+
+            throw new FSDBError({
+                message:
+                    "Failed to add to a number in the database. This may be because the JSON could not be parsed correctly.",
+                method: "FSDB#add()",
+                cause: error,
+            });
         }
     }
 
@@ -422,57 +404,53 @@ class FSDB {
      * @param {string} key The key of the number you want to subtract from
      * @param {number} value The value you want to subtract
      * @returns {boolean} Whether the subtraction was successful or not
+     * @throws {FSDBError} When a parsing error occurs or something else goes wrong
      * @example <caption>Subtracting from a number</caption>
      * // assuming the database contains: { key: 500 }
      * db.subtract("key", 100);
      * // => { key: 400 }
      */
     subtract(key, value) {
-        if (!key) {
-            console.log(
-                "File System DB Error: Cannot subtract data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#subtract()"
-            );
-            return false;
-        }
-
-        if (typeof key !== "string") {
-            console.log(
-                "File System DB Error: Cannot subtract data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#subtract()"
-            );
-            return false;
-        }
-
-        if (value === undefined || value === null || value === "") {
-            console.log(
-                "File System DB Error: Cannot subtract data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#subtract()"
-            );
-            return false;
-        }
-
-        if (isNaN(value)) {
-            console.log(
-                "File System DB Error: Cannot subtract data, as the value is not a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#subtract()"
-            );
-            return false;
-        }
-
         try {
-            let data = this.get(key);
+            if (!key) {
+                throw new FSDBError({
+                    message: "Cannot subtract data, as no key was provided.",
+                    method: "FSDB#subtract()",
+                });
+            }
 
-            if (data == null) return this.set(key, value);
-            if (isNaN(data)) {
-                console.log(
-                    "File System DB Error: Cannot subtract data, as the key does not point to a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#subtract()"
-                );
-                return false;
+            if (isNaN(value)) {
+                throw new FSDBError({
+                    message:
+                        "Cannot subtract data, as the value is not a number.",
+                    method: "FSDB#subtract()",
+                });
+            }
+
+            const data = this.get(key);
+
+            if (data === null) return this.set(key, -value);
+            if (typeof data !== "number" || isNaN(data)) {
+                throw new FSDBError({
+                    message:
+                        "Cannot subtract data, as the key does not point to a number.",
+                    method: "FSDB#subtract()",
+                });
             }
 
             return this.set(key, data - value);
-        } catch {
-            console.log(
-                "File System DB Error: Failed to subtract from a number in the database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#subtract()"
-            );
-            return false;
+        } catch (error) {
+            if (error instanceof FSDBError) {
+                console.error(error.message);
+                return false;
+            }
+
+            throw new FSDBError({
+                message:
+                    "Failed to subtract from a number in the database. This may be because the JSON could not be parsed correctly.",
+                method: "FSDB#subtract()",
+                cause: error,
+            });
         }
     }
 
@@ -481,57 +459,53 @@ class FSDB {
      * @param {string} key The key of the number you want to multiply
      * @param {number} value The value you want to multiply by
      * @returns {boolean} Whether the multiplication was successful or not
+     * @throws {FSDBError} When a parsing error occurs or something else goes wrong
      * @example <caption>Multiplying a number</caption>
      * // assuming the database contains: { key: 500 }
      * db.multiply("key", 2);
      * // => { key: 1000 }
      */
     multiply(key, value) {
-        if (!key) {
-            console.log(
-                "File System DB Error: Cannot multiply data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#multiply()"
-            );
-            return false;
-        }
-
-        if (typeof key !== "string") {
-            console.log(
-                "File System DB Error: Cannot multiply data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#multiply()"
-            );
-            return false;
-        }
-
-        if (value === undefined || value === null || value === "") {
-            console.log(
-                "File System DB Error: Cannot multiply data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#multiply()"
-            );
-            return false;
-        }
-
-        if (isNaN(value)) {
-            console.log(
-                "File System DB Error: Cannot multiply data, as the value is not a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#multiply()"
-            );
-            return false;
-        }
-
         try {
-            let data = this.get(key);
+            if (!key) {
+                throw new FSDBError({
+                    message: "Cannot multiply data, as no key was provided.",
+                    method: "FSDB#multiply()",
+                });
+            }
 
-            if (data == null) return this.set(key, value);
-            if (isNaN(data)) {
-                console.log(
-                    "File System DB Error: Cannot multiply data, as the key does not point to a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#multiply()"
-                );
-                return false;
+            if (isNaN(value)) {
+                throw new FSDBError({
+                    message:
+                        "Cannot multiply data, as the value is not a number.",
+                    method: "FSDB#multiply()",
+                });
+            }
+
+            const data = this.get(key);
+
+            if (data === null) return this.set(key, 0);
+            if (typeof data !== "number" || isNaN(data)) {
+                throw new FSDBError({
+                    message:
+                        "Cannot multiply data, as the key does not point to a number.",
+                    method: "FSDB#multiply()",
+                });
             }
 
             return this.set(key, data * value);
-        } catch {
-            console.log(
-                "File System DB Error: Failed to multiply a number in the database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#multiply()"
-            );
-            return false;
+        } catch (error) {
+            if (error instanceof FSDBError) {
+                console.error(error.message);
+                return false;
+            }
+
+            throw new FSDBError({
+                message:
+                    "Failed to multiply a number in the database. This may be because the JSON could not be parsed correctly.",
+                method: "FSDB#multiply()",
+                cause: error,
+            });
         }
     }
 
@@ -540,64 +514,53 @@ class FSDB {
      * @param {string} key The key of the number you want to divide
      * @param {number} value The value you want to divide by
      * @returns {boolean} Whether the division was successful or not
+     * @throws {FSDBError} When a parsing error occurs or something else goes wrong
      * @example <caption>Dividing a number</caption>
      * // assuming the database contains: { key: 500 }
      * db.divide("key", 2);
      * // => { key: 250 }
      */
     divide(key, value) {
-        if (!key) {
-            console.log(
-                "File System DB Error: Cannot divide data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()"
-            );
-            return false;
-        }
-
-        if (typeof key !== "string") {
-            console.log(
-                "File System DB Error: Cannot divide data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()"
-            );
-            return false;
-        }
-
-        if (value === undefined || value === null || value === "") {
-            console.log(
-                "File System DB Error: Cannot divide data, as none was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()"
-            );
-            return false;
-        }
-
-        if (isNaN(value)) {
-            console.log(
-                "File System DB Error: Cannot divide data, as the value is not a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()"
-            );
-            return false;
-        }
-
-        if (value == 0) {
-            console.log(
-                "File System DB Error: Cannot divide data, as it looks like you're trying to end the world. (Dividing by 0)\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()"
-            );
-            return false;
-        }
-
         try {
-            let data = this.get(key);
+            if (!key) {
+                throw new FSDBError({
+                    message: "Cannot divide data, as no key was provided.",
+                    method: "FSDB#divide()",
+                });
+            }
 
-            if (data == null) return this.set(key, value);
-            if (isNaN(data)) {
-                console.log(
-                    "File System DB Error: Cannot divide data, as the key does not point to a number.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()"
-                );
-                return false;
+            if (isNaN(value)) {
+                throw new FSDBError({
+                    message:
+                        "Cannot divide data, as the value is not a number.",
+                    method: "FSDB#divide()",
+                });
+            }
+
+            const data = this.get(key);
+
+            if (data === null) return this.set(key, 0);
+            if (typeof data !== "number" || isNaN(data)) {
+                throw new FSDBError({
+                    message:
+                        "Cannot divide data, as the key does not point to a number.",
+                    method: "FSDB#divide()",
+                });
             }
 
             return this.set(key, data / value);
-        } catch {
-            console.log(
-                "File System DB Error: Failed to divide a number in the database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#divide()"
-            );
-            return false;
+        } catch (error) {
+            if (error instanceof FSDBError) {
+                console.error(error.message);
+                return false;
+            }
+
+            throw new FSDBError({
+                message:
+                    "Failed to divide a number in the database. This may be because the JSON could not be parsed correctly.",
+                method: "FSDB#divide()",
+                cause: error,
+            });
         }
     }
 
@@ -605,57 +568,58 @@ class FSDB {
      * Delete a value from the database
      * @param {string} key The key of the data you want to delete
      * @returns {boolean} Whether the deletion was successful or not
+     * @throws {FSDBError} When a parsing error occurs or something else goes wrong
      * @example <caption>Deleting a value</caption>
      * db.delete("key");
      * @example <caption>Deleting a value using dot notation</caption>
      * db.delete("foo.bar");
      */
     delete(key) {
-        if (!key) {
-            console.log(
-                "File System DB Error: Cannot delete data, as no key was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#delete()"
-            );
-            return false;
-        }
-
-        if (typeof key !== "string") {
-            console.log(
-                "File System DB Error: Cannot delete data, as the key is not a string.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#delete()"
-            );
-            return false;
-        }
-
         try {
-            let data = JSON.parse(readFileSync(this.path));
-            let parsed = parseKey(key, null, data);
+            if (!key) {
+                throw new FSDBError({
+                    message: "Cannot delete data, as no key was provided.",
+                    method: "FSDB#delete()",
+                });
+            }
 
-            this.compact
-                ? writeFileSync(this.path, JSON.stringify(parsed))
-                : writeFileSync(this.path, JSON.stringify(parsed, null, 4));
+            const data = JSON.parse(readFileSync(this.path, "utf8"));
+            const parsed = parseKey(key, null, data);
+            const spacing = this.compact ? undefined : 4;
+
+            writeFileSync(this.path, JSON.stringify(parsed, null, spacing));
             return true;
-        } catch {
-            console.log(
-                "File System DB Error: Failed to delete data from database. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#delete()"
-            );
-            return false;
+        } catch (error) {
+            if (error instanceof FSDBError) {
+                console.error(error.message);
+                return false;
+            }
+
+            throw new FSDBError({
+                message:
+                    "Failed to delete data from database. This may be because the JSON could not be parsed correctly.",
+                method: "FSDB#delete()",
+                cause: error,
+            });
         }
     }
 
     /**
      * Delete all data from the database (this CANNOT be undone!)
-     * @returns {boolean} Whether the deletion was successful or not
+     * @throws {FSDBError} When a file error occurs or something else goes wrong
      * @example <caption>Deleting all data</caption>
      * db.deleteAll();
      */
     deleteAll() {
         try {
             writeFileSync(this.path, "{}");
-            return true;
-        } catch {
-            console.log(
-                "File System DB Error: Failed to delete data from database. This may be because the JSON file could not be accessed.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#deleteAll()"
-            );
-            return false;
+        } catch (error) {
+            throw new FSDBError({
+                message:
+                    "Failed to delete all data from database. This may be because the JSON file could not be accessed.",
+                method: "FSDB#deleteAll()",
+                cause: error,
+            });
         }
     }
 
@@ -664,45 +628,52 @@ class FSDB {
      * on all backups to keep the file size minimal
      * @param {string} path The path to the JSON file you want to backup to
      * @returns {boolean} Whether the backup was successful or not
+     * @throws {FSDBError} When a file error occurs or something else goes wrong
      * @example <caption>Backing up the database</caption>
      * db.backup("./Backups/db-backup.json");
      */
     backup(path) {
-        if (!path) {
-            console.log(
-                "File System DB Error: Cannot backup data, as no path was provided.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#backup()"
-            );
-            return false;
-        }
-        if (path == this.path) {
-            console.log(
-                "File System DB Error: Cannot backup data, as the path is the same as the database's path.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#backup()"
-            );
-            return false;
-        }
         try {
-            if (this.all(true).length == 0)
-                console.log(
-                    "File System DB Warning: Attempting to backup an empty database.\nMethod: FSDB#backup()"
-                );
+            if (!path) {
+                throw new FSDBError({
+                    message: "Cannot backup data, as no path was provided.",
+                    method: "FSDB#backup()",
+                });
+            }
+
+            if (path === this.path) {
+                throw new FSDBError({
+                    message:
+                        "Cannot backup data, as the path is the same as the database's path.",
+                    method: "FSDB#backup()",
+                });
+            }
+
+            if (this.all(true).length === 0) {
+                console.warn("Attempting to backup an empty database.");
+            }
 
             path = path.replace(/\\/g, "/");
-            let parsedPath = parse(path);
+            const { dir, ext } = parse(path);
 
-            if (parsedPath.ext !== ".json") path = path + ".json";
-            if (parsedPath.dir) mkdirs(parsedPath.dir);
+            if (ext !== ".json") path = `${path}.json`;
+            if (dir) mkdirSync(dir, { recursive: true });
 
-            writeFileSync(
-                path,
-                JSON.stringify(JSON.parse(readFileSync(this.path)))
-            );
-
+            const content = JSON.stringify(readFileSync(this.path, "utf8"));
+            writeFileSync(path, content);
             return true;
-        } catch {
-            console.log(
-                "File System DB Error: Failed to backup data. This may be because the JSON could not be parsed correctly.\nNeed Help? Join Our Discord Server at https://discord.gg/P2g24jp\nMethod: FSDB#backup()"
-            );
-            return false;
+        } catch (error) {
+            if (error instanceof FSDBError) {
+                console.error(error.message);
+                return false;
+            }
+
+            throw new FSDBError({
+                message:
+                    "Failed to backup database. This may be because the JSON file could not be accessed.",
+                method: "FSDB#backup()",
+                cause: error,
+            });
         }
     }
 }
