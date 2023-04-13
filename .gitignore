@@ -1,13 +1,15 @@
 # learn more: https://git-scm.com/docs/gitignore
 
-# dependencies
+# artifacts
+lib
 node_modules
 
 # miscellaneous
 .DS_Store
-*.log
-*.lock
 *.cache
+*.lock
+*.log
+*.tgz
 
 # temporary
 CHANGES.md

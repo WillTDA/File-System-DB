@@ -1,7 +1,7 @@
-/// <reference path="index.d.ts" />
-
 const { existsSync, mkdirSync, readFileSync, writeFileSync } = require("fs");
 const { parse } = require("path");
+
+/** @typedef {import("./types").DatabaseEntry} DatabaseEntry */
 
 /**
  * @param {string} key
@@ -35,7 +35,7 @@ const convertToDotNotation = (object) => {
             currentValue !== null
         ) {
             Object.entries(convertToDotNotation(currentValue)).forEach(
-                ([key, value]) => result[`${currentKey}.${key}`] = value
+                ([key, value]) => (result[`${currentKey}.${key}`] = value)
             );
         } else {
             result[currentKey] = currentValue;
