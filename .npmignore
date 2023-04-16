@@ -2,6 +2,7 @@
 
 # environment
 .editorconfig
+.github
 src
 test
 tsconfig.json

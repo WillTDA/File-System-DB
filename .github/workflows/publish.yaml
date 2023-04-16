@@ -1,0 +1,27 @@
+# based on https://github.com/azu/npm-github-package-example
+
+name: 🚀 Publish to npm
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - "!*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          registry-url: 'https://npm.pkg.github.com'
+      - run: npm ci
+      - run: npm t
+      # Publish to npm if this version is not published
+      - run: |
+          npx can-npm-publish --yes --verbose && npm publish || echo "Does not publish"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
