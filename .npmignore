@@ -1,0 +1,14 @@
+# learn more: https://docs.npmjs.com/cli/v9/using-npm/developers#keeping-files-out-of-your-package
+
+# environment
+.editorconfig
+.github
+src
+test
+tsconfig.json
+
+# miscellaneous
+*.tgz
+
+# temporary
+CHANGES.md

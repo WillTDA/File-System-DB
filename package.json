@@ -1,25 +1,38 @@
 {
   "name": "file-system-db",
-  "version": "1.1.0",
-  "description": "A Lightweight, Synchronous, Key-Value Based JSON File Database System.",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/WillTDA/File-System-DB"
-  },
+  "version": "2.0.0",
+  "description": "A simple, lightweight, synchronous, database for Node.js powered by JSON.",
   "keywords": [
-    "fs",
     "database",
     "db",
-    "quick.db",
-    "quickdb",
-    "enmap",
-    "quickmongo",
-    "discord.js"
+    "file-based",
+    "fs",
+    "json",
+    "local",
+    "node",
+    "nodejs",
+    "storage"
   ],
+  "bugs": "https://github.com/WillTDA/File-System-DB/issues",
+  "license": "Apache-2.0",
   "author": "WillTDA",
-  "license": "Apache-2.0"
+  "main": "lib/index.js",
+  "repository": "github:WillTDA/File-System-DB",
+  "scripts": {
+    "prepack": "npm run format && npm run build && rm *.tgz",
+    "postpack": "npm install --save-dev *.tgz",
+    "pretest": "npm pack",
+    "test": "mocha",
+    "build": "tsc",
+    "postbuild": "cp src/* lib",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^18.15.11",
+    "file-system-db": "file:file-system-db-2.0.0.tgz",
+    "mocha": "^10.2.0",
+    "prettier": "^2.8.7",
+    "typescript": "^5.0.4"
+  }
 }
