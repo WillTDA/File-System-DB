@@ -10,13 +10,13 @@ describe("FSDB", () => {
     describe("initializing the class", () => {
         describe("usage", () => {
             const filename = "initialization-db.json";
-            const filepath = join(__dirname, `../${filename}`);
+            const filepath = join(__dirname, filename);
 
             afterEach(() => unlinkSync(db.path));
 
             it("should handle no arguments", () => {
                 db = new FSDB();
-                const expectedPath = join(__dirname, "../database.json");
+                const expectedPath = join(__dirname, "database.json");
 
                 assert(db instanceof FSDB);
                 assert.strictEqual(db.path, expectedPath);
