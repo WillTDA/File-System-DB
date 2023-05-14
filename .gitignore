@@ -1,8 +1,8 @@
 # learn more: https://git-scm.com/docs/gitignore
 
 # artifacts
-lib
 node_modules
+index.d.ts*
 
 # miscellaneous
 .DS_Store
