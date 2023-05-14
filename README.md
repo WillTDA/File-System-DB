@@ -7,6 +7,8 @@ database for Node.js powered by JSON.
 
 **Please Note:** This package saves data persistently. This means that this will
 not work on places like Heroku and similar services.
+
+**v2 Migration:** If you are migrating from **v1** to **v2**, consider reading the detailed changes on this [pull request](https://github.com/WillTDA/File-System-DB/pull/6).
 </center>
 
 [![NPM](https://nodei.co/npm/file-system-db.png)](https://npmjs.com/package/file-system-db)
@@ -38,6 +40,7 @@ not work on places like Heroku and similar services.
 - 🚫 <b>No Dependencies</b> | This package is built on top of the
   [File System](https://nodejs.org/api/fs.html) module built into Node.js, making
   the package size very small.
+
 
 ## Install Package
 
