@@ -13,6 +13,10 @@
     "nodejs",
     "storage"
   ],
+  "funding": {
+    "type" : "buymecoffee",
+    "url" : "https://www.buymeacoffee.com/willtda"
+  },
   "bugs": "https://github.com/WillTDA/File-System-DB/issues",
   "license": "Apache-2.0",
   "author": "WillTDA",

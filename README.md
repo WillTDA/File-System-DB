@@ -2,11 +2,18 @@
   💿 File System DB 💿
 </h1>
 
-File System DB (or "FSDB" for short) is a simple, lightweight, synchronous,
+<center style="margin-bottom:1rem;">File System DB (or "FSDB" for short) is a simple, lightweight, synchronous,
 database for Node.js powered by JSON.
 
 **Please Note:** This package saves data persistently. This means that this will
 not work on places like Heroku and similar services.
+</center>
+
+[![NPM](https://nodei.co/npm/file-system-db.png)](https://npmjs.com/package/file-system-db)
+
+[![Downloads](https://img.shields.io/npm/dt/file-system-db?logo=npm&style=flat-square)](https://npmjs.com/package/file-system-db) [![Discord Server](https://img.shields.io/discord/667479986214666272?logo=discord&logoColor=white&style=flat-square)](https://diamonddigital.dev/discord)
+
+<a href="https://www.buymeacoffee.com/willtda" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
 ## Features
 
@@ -180,9 +187,14 @@ db.multiply("coins", 2);
 db.divide("coins", 4);
 ```
 
-## Contact Me
+## Contact Us
 
-- 👋 Need Help? [Join Our Discord Server](https://discord.gg/P2g24jp)!
+- 👋 Need Help? [Join Our Discord Server](https://diamonddigital.dev/discord)!
 - 👾 Found a Bug? [Open an Issue](https://github.com/WillTDA/File-System-DB/issues),
   or Fork and [Submit a Pull Request](https://github.com/WillTDA/File-System-DB/pulls)
   on our [GitHub Repository](https://github.com/WillTDA/File-System-DB)!
+<hr>
+<center>
+<a href="https://diamonddigital.dev/"><strong>Created and maintained by</strong>
+<img align="center" style="width:25%;height:auto" src="https://diamonddigital.dev/img/png/ddd_logo_text_transparent.png" alt="Diamond Digital Development Logo"></a>
+</center>
