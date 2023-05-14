@@ -23,20 +23,21 @@
   "main": "lib/index.js",
   "repository": "github:WillTDA/File-System-DB",
   "scripts": {
-    "prepack": "npm run format && npm run build && rm *.tgz",
-    "postpack": "npm install --save-dev *.tgz",
-    "pretest": "npm pack",
-    "test": "mocha",
-    "build": "tsc",
-    "postbuild": "cp src/* lib",
+    "publish": "npm run format && npm publish -w lib",
+    "pretest": "npm link lib tests",
+    "test": "npm test -w tests",
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "@types/mocha": "^10.0.1",
     "@types/node": "^18.15.11",
-    "file-system-db": "file:file-system-db-2.0.0.tgz",
-    "mocha": "^10.2.0",
     "prettier": "^2.8.7",
     "typescript": "^5.0.4"
+  },
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "lib",
+      "tests"
+    ]
   }
 }

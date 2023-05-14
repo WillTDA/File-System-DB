@@ -4,8 +4,7 @@
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": true,
-    "outDir": "lib",
     "strict": true
   },
-  "include": ["src/index.js"]
+  "include": ["index.js"]
 }

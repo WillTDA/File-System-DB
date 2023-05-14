@@ -1,0 +1,24 @@
+{
+  "name": "file-system-db",
+  "version": "2.0.0",
+  "description": "A simple, lightweight, synchronous, database for Node.js powered by JSON.",
+  "keywords": [
+    "database",
+    "db",
+    "file-based",
+    "fs",
+    "json",
+    "local",
+    "node",
+    "nodejs",
+    "storage"
+  ],
+  "bugs": "https://github.com/WillTDA/File-System-DB/issues",
+  "license": "Apache-2.0",
+  "author": "WillTDA",
+  "main": "index.js",
+  "repository": "github:WillTDA/File-System-DB",
+  "scripts": {
+    "prepublishOnly": "tsc"
+  }
+}
