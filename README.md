@@ -2,45 +2,49 @@
   💿 File System DB 💿
 </h1>
 
-<center style="margin-bottom:1rem;">File System DB (or "FSDB" for short) is a simple, lightweight, synchronous,
-database for Node.js powered by JSON.
+<div align="center">
+
+  ![license](https://img.shields.io/npm/l/file-system-db?style=flat-square)
+  [![version](https://img.shields.io/npm/v/file-system-db?style=flat-square)](https://npmjs.com/package/file-system-db)
+  [![gzipped size](https://img.shields.io/bundlejs/size/file-system-db?style=flat-square)](https://npmjs.com/package/file-system-db)
+  [![downloads](https://img.shields.io/npm/dt/file-system-db?style=flat-square)](https://npmjs.com/package/file-system-db)
+  ![last commit](https://img.shields.io/github/last-commit/WillTDA/File-System-DB?style=flat-square)
+
+  [![discord](https://img.shields.io/discord/667479986214666272?logo=discord&logoColor=white&style=flat-square)](https://diamonddigital.dev/discord)
+  [![buy me a coffee](https://img.shields.io/badge/-Buy%20Me%20a%20Coffee-ffdd00?logo=Buy%20Me%20A%20Coffee&logoColor=000000&style=flat-square)](https://www.buymeacoffee.com/willtda)
+
+</div>
+
+<br />
 
 **Please Note:** This package saves data persistently. This means that this will
 not work on places like Heroku and similar services.
 
 **v2 Migration:** If you are migrating from **v1** to **v2**, consider reading the detailed changes on this [pull request](https://github.com/WillTDA/File-System-DB/pull/6).
-</center>
-
-[![NPM](https://nodei.co/npm/file-system-db.png)](https://npmjs.com/package/file-system-db)
-
-[![Downloads](https://img.shields.io/npm/dt/file-system-db?logo=npm&style=flat-square)](https://npmjs.com/package/file-system-db) [![Discord Server](https://img.shields.io/discord/667479986214666272?logo=discord&logoColor=white&style=flat-square)](https://diamonddigital.dev/discord)
-
-<a href="https://www.buymeacoffee.com/willtda" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
 ## Features
 
-- 📦 <b>Works Out of the Box</b> | Only two lines of code are required to set up
+- 📦 **Works Out of the Box** | Only two lines of code are required to set up
   and start using your own database.
 
-- 🤹‍♂️ <b>Unlimited Databases</b> | You can create as many databases as you want,
+- 🤹‍♂️ **Unlimited Databases** | You can create as many databases as you want,
   whenever you want.
 
-- 🗃️ <b>Saved as JSON Files</b> | This package uses JSON files to act as
+- 🗃️ **Saved as JSON Files** | This package uses JSON files to act as
   databases, so you can easily understand, edit and backup/export the data.
 
-- 📝 <b>Key-Value Based</b> | Designed with beginners in mind, so you can store
+- 📝 **Key-Value Based** | Designed with beginners in mind, so you can store
   any type of data in your database with ease.
 
-- 📔 <b>Dot Notation Support</b> | You can use dot notation to store and
+- 📔 **Dot Notation Support** | You can use dot notation to store and
   retrieve JSON fields and data.
 
-- ⚡ <b>Fast and Synchronous</b> | All operations are synchronous, so saving and
+- ⚡ **Fast and Synchronous** | All operations are synchronous, so saving and
   retrieving data takes less than few milliseconds.
 
-- 🚫 <b>No Dependencies</b> | This package is built on top of the
+- 🚫 **No Dependencies** | This package is built on top of the
   [File System](https://nodejs.org/api/fs.html) module built into Node.js, making
   the package size very small.
-
 
 ## Install Package
 
@@ -194,10 +198,12 @@ db.divide("coins", 4);
 
 - 👋 Need Help? [Join Our Discord Server](https://diamonddigital.dev/discord)!
 - 👾 Found a Bug? [Open an Issue](https://github.com/WillTDA/File-System-DB/issues),
-  or Fork and [Submit a Pull Request](https://github.com/WillTDA/File-System-DB/pulls)
-  on our [GitHub Repository](https://github.com/WillTDA/File-System-DB)!
-<hr>
-<center>
-<a href="https://diamonddigital.dev/"><strong>Created and maintained by</strong>
-<img align="center" style="width:25%;height:auto" src="https://diamonddigital.dev/img/png/ddd_logo_text_transparent.png" alt="Diamond Digital Development Logo"></a>
-</center>
+or Fork and [Submit a Pull Request](https://github.com/WillTDA/File-System-DB/pulls)
+on our [GitHub Repository](https://github.com/WillTDA/File-System-DB)!
+
+---
+
+<a href="https://diamonddigital.dev/">
+  <strong>Created and maintained by</strong>
+  <img align="center" alt="Diamond Digital Development Logo" src="https://diamonddigital.dev/img/png/ddd_logo_text_transparent.png" style="width:25%;height:auto" />
+</a>
