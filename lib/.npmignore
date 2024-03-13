@@ -1,7 +1,0 @@
-# learn more: https://docs.npmjs.com/cli/v9/using-npm/developers#keeping-files-out-of-your-package
-
-# artifacts
-!index.d.ts*
-
-# environment
-tsconfig.json

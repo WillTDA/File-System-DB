@@ -1,4 +1,4 @@
-name: 🔬 Run tests
+name: Test
 
 on:
   push:
@@ -10,6 +10,7 @@ on:
 
 jobs:
   test:
+    name: 🔬 Run tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -21,6 +22,6 @@ jobs:
             ${{ runner.os }}-node-
       - uses: actions/setup-node@v3
         with:
-          node-version: 12.x
-      - run: npm ci
+          node-version: 18.x
+      - run: npm clean-install
       - run: npm test

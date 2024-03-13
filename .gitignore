@@ -10,6 +10,3 @@ index.d.ts*
 *.lock
 *.log
 *.tgz
-
-# temporary
-CHANGES.md
