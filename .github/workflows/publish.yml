@@ -1,6 +1,6 @@
 # based on https://github.com/azu/npm-github-package-example
 
-name: 🚀 Publish to npm
+name: Publish
 
 on:
   push:
@@ -10,7 +10,8 @@ on:
       - "!*"
 
 jobs:
-  release:
+  publish:
+    name: 🚀 Publish to npm
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -22,10 +23,10 @@ jobs:
             ${{ runner.os }}-node-
       - uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 18.x
           registry-url: "https://npm.pkg.github.com"
-      - run: npm ci
-      - run: npm t
+      - run: npm clean-install
+      - run: npm test
 
       # Publish to npm if this version is not published
       - run: |
@@ -34,7 +35,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
 
       # Push tag to GitHub if the version's tag is not tagged
-      - run: node -p -e '`PACKAGE_VERSION=${require("./package.json").version}`' >> $GITHUB_ENV
+      - run: node --print '`PACKAGE_VERSION=${require("package.json").version}`' >> $GITHUB_ENV
       - uses: pkgdeps/git-tag-action@v2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

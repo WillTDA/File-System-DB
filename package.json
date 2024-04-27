@@ -1,6 +1,6 @@
 {
   "name": "file-system-db",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A simple, lightweight, synchronous, database for Node.js powered by JSON.",
   "keywords": [
     "database",
@@ -13,31 +13,31 @@
     "nodejs",
     "storage"
   ],
-  "funding": {
-    "type" : "buymecoffee",
-    "url" : "https://www.buymeacoffee.com/willtda"
-  },
   "bugs": "https://github.com/WillTDA/File-System-DB/issues",
   "license": "Apache-2.0",
   "author": "WillTDA",
-  "main": "lib/index.js",
+  "funding": {
+    "type": "buymecoffee",
+    "url": "https://www.buymeacoffee.com/willtda"
+  },
+  "files": [
+    "index.d.ts*"
+  ],
+  "main": "index.js",
+  "types": "index.d.ts",
   "repository": "github:WillTDA/File-System-DB",
   "scripts": {
-    "publish": "npm run format && npm publish -w lib",
-    "pretest": "npm link lib tests",
-    "test": "npm test -w tests",
-    "format": "prettier --write ."
+    "prepare": "tsc",
+    "pretest": "npm pack && npm install --no-save *.tgz",
+    "test": "mocha .",
+    "prepublishOnly": "prettier --write . '!package-lock.json'"
   },
   "devDependencies": {
-    "@types/node": "^18.15.11",
-    "prettier": "^2.8.7",
-    "typescript": "^5.0.4"
-  },
-  "private": true,
-  "workspaces": {
-    "packages": [
-      "lib",
-      "tests"
-    ]
+    "@tsconfig/node18": "^18",
+    "@types/mocha": "^10",
+    "@types/node": "^18",
+    "mocha": "^10",
+    "prettier": "^3",
+    "typescript": "^5"
   }
 }
