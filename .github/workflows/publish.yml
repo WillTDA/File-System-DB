@@ -35,7 +35,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
 
       # Push tag to GitHub if the version's tag is not tagged
-      - run: node --print '`PACKAGE_VERSION=${require("package.json").version}`' >> $GITHUB_ENV
+      - run: echo "PACKAGE_VERSION=$(npm pkg get version | tr -d \")" >> $GITHUB_ENV
       - uses: pkgdeps/git-tag-action@v2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
